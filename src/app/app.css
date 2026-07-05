@@ -270,6 +270,7 @@
   background: var(--color-surface-muted);
   border-radius: 8px;
   transition: background 0.15s ease;
+  transform-origin: top center;
 }
 
 .todo-item:hover {
@@ -328,6 +329,12 @@
   overflow-wrap: anywhere;
   font-size: 0.85rem;
   color: var(--color-text-muted);
+}
+
+.todo-item__text {
+  transition:
+    color 0.12s ease-out,
+    text-decoration-color 0.12s ease-out;
 }
 
 .todo-item--completed .todo-item__text {
@@ -471,6 +478,54 @@
   padding: 2rem 0;
   text-align: center;
   color: var(--color-text-subtle);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .todo-enter {
+    animation: todo-fade-in 180ms ease-out;
+  }
+
+  .todo-leave {
+    animation: todo-fade-out 180ms ease-in forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-enter,
+  .todo-leave {
+    animation: todo-fade-instant 1ms linear;
+  }
+}
+
+@keyframes todo-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes todo-fade-out {
+  from {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  to {
+    opacity: 0;
+    transform: scaleY(0.85);
+  }
+}
+
+@keyframes todo-fade-instant {
+  from {
+    opacity: 0.99;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (min-width: 600px) {

@@ -142,9 +142,14 @@
 
     <ul class="todo-list">
       @for (todo of filteredTodos(); track trackById($index, todo)) {
-        <li class="todo-item" [class.todo-item--completed]="todo.completed">
+        <li
+          class="todo-item"
+          [class.todo-item--completed]="todo.completed"
+          animate.enter="todo-enter"
+          animate.leave="todo-leave"
+        >
           @if (editingId() === todo.id) {
-            <div class="todo-edit">
+            <div class="todo-edit" animate.enter="todo-enter" animate.leave="todo-leave">
               <label class="visually-hidden" [for]="'edit-text-' + todo.id">Title</label>
               <input
                 [id]="'edit-text-' + todo.id"
@@ -188,7 +193,7 @@
               </div>
             </div>
           } @else {
-            <label class="todo-item__label">
+            <label class="todo-item__label" animate.enter="todo-enter" animate.leave="todo-leave">
               <input
                 type="checkbox"
                 [checked]="todo.completed"
@@ -209,7 +214,7 @@
                 }
               </span>
             </label>
-            <div class="todo-item__actions">
+            <div class="todo-item__actions" animate.enter="todo-enter" animate.leave="todo-leave">
               <button
                 type="button"
                 class="todo-item__edit-button"
