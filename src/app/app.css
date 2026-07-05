@@ -147,6 +147,7 @@
 .toggle-all {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: 0.4rem;
   font-size: 0.9rem;
   color: var(--color-text-muted);
@@ -226,6 +227,7 @@
 .todo-item__label {
   display: flex;
   align-items: flex-start;
+  min-height: 44px;
   gap: 0.65rem;
   flex: 1;
   min-width: 0;
