@@ -1,89 +1,146 @@
 <main class="app">
   <header class="app__header">
-    <h1 class="app__title">Todo</h1>
+    <div class="app__heading">
+      <h1 class="app__title">Todo</h1>
+      <p class="app__subtitle">Stay on top of today</p>
+    </div>
     <button
       type="button"
       class="theme-toggle"
       (click)="toggleTheme()"
       [attr.aria-pressed]="isDarkTheme()"
-      aria-label="Toggle dark mode"
+      [attr.aria-label]="isDarkTheme() ? 'Switch to light mode' : 'Switch to dark mode'"
     >
-      {{ isDarkTheme() ? '☀️ Light' : '🌙 Dark' }}
-    </button>
-  </header>
-
-  <form class="add-todo" (ngSubmit)="addTodo()">
-    <div class="add-todo__row">
-      <label class="visually-hidden" for="newTodo">What needs to be done?</label>
-      <input
-        id="newTodo"
-        class="add-todo__input"
-        type="text"
-        name="newTodo"
-        placeholder="What needs to be done?"
-        autocomplete="off"
-        [(ngModel)]="newTodoText"
-        #newTodoInput
-      />
-      <button class="add-todo__button" type="submit" [disabled]="!newTodoText().trim()">Add</button>
-    </div>
-    <div class="add-todo__row add-todo__row--toggle">
-      <button
-        type="button"
-        class="add-todo__details-toggle"
-        [attr.aria-expanded]="detailsExpanded()"
-        (click)="toggleDetails()"
-      >
+      @if (isDarkTheme()) {
         <svg
-          class="add-todo__details-icon"
-          [class.add-todo__details-icon--expanded]="detailsExpanded()"
+          class="theme-toggle__icon"
           viewBox="0 0 24 24"
-          width="16"
-          height="16"
+          width="20"
+          height="20"
           fill="none"
           stroke="currentColor"
           stroke-width="1.5"
           aria-hidden="true"
         >
-          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="12" cy="12" r="4.5" />
+          <path
+            d="M12 2.5v2.25M12 19.25v2.25M4.5 12H2.25M21.75 12H19.5M6.16 6.16 4.55 4.55M19.45 19.45l-1.61-1.61M6.16 17.84l-1.61 1.61M19.45 4.55l-1.61 1.61"
+            stroke-linecap="round"
+          />
         </svg>
-        {{ detailsExpanded() ? 'Hide details' : 'Add details' }}
-      </button>
-      @if (!detailsExpanded() && hasDetailsSummary()) {
-        <span class="add-todo__details-summary">
-          @if (newTodoCategory() !== defaultCategory) {
-            <span [class]="categoryChipClass(newTodoCategory())">{{ newTodoCategory() }}</span>
-          }
-          @if (newTodoDescription().trim()) {
-            <span class="add-todo__details-summary-text">{{ newTodoDescription() }}</span>
-          }
-        </span>
+      } @else {
+        <svg
+          class="theme-toggle__icon"
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+        >
+          <path
+            d="M20.5 14.6A8.5 8.5 0 1 1 9.4 3.5a7 7 0 0 0 11.1 11.1z"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      }
+    </button>
+  </header>
+
+  <form class="add-todo" (ngSubmit)="addTodo()">
+    <div class="add-todo__card">
+      <div class="add-todo__row">
+        <label class="visually-hidden" for="newTodo">What needs to be done?</label>
+        <input
+          id="newTodo"
+          class="add-todo__input"
+          type="text"
+          name="newTodo"
+          placeholder="What needs to be done?"
+          autocomplete="off"
+          [(ngModel)]="newTodoText"
+          #newTodoInput
+        />
+        <button
+          class="add-todo__button"
+          type="submit"
+          [disabled]="!newTodoText().trim()"
+        >
+          <svg
+            class="add-todo__button-icon"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" stroke-linecap="round" />
+          </svg>
+          <span>Add</span>
+        </button>
+      </div>
+      <div class="add-todo__row add-todo__row--toggle">
+        <button
+          type="button"
+          class="add-todo__details-toggle"
+          [attr.aria-expanded]="detailsExpanded()"
+          (click)="toggleDetails()"
+        >
+          <svg
+            class="add-todo__details-icon"
+            [class.add-todo__details-icon--expanded]="detailsExpanded()"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          {{ detailsExpanded() ? 'Hide details' : 'Add details' }}
+        </button>
+        @if (!detailsExpanded() && hasDetailsSummary()) {
+          <span class="add-todo__details-summary">
+            @if (newTodoCategory() !== defaultCategory) {
+              <span [class]="categoryChipClass(newTodoCategory())">{{ newTodoCategory() }}</span>
+            }
+            @if (newTodoDescription().trim()) {
+              <span class="add-todo__details-summary-text">{{ newTodoDescription() }}</span>
+            }
+          </span>
+        }
+      </div>
+      @if (detailsExpanded()) {
+        <div class="add-todo__row add-todo__row--details">
+          <label class="visually-hidden" for="newTodoDescription">Description (optional)</label>
+          <textarea
+            id="newTodoDescription"
+            class="add-todo__description"
+            name="newTodoDescription"
+            placeholder="Add a description (optional)"
+            rows="2"
+            [(ngModel)]="newTodoDescription"
+          ></textarea>
+          <label class="visually-hidden" for="newTodoCategory">Category</label>
+          <select
+            id="newTodoCategory"
+            class="add-todo__category"
+            name="newTodoCategory"
+            [(ngModel)]="newTodoCategory"
+          >
+            @for (category of categories; track category) {
+              <option [value]="category">{{ category }}</option>
+            }
+          </select>
+        </div>
       }
     </div>
-    @if (detailsExpanded()) {
-      <div class="add-todo__row add-todo__row--details">
-        <label class="visually-hidden" for="newTodoDescription">Description (optional)</label>
-        <textarea
-          id="newTodoDescription"
-          class="add-todo__description"
-          name="newTodoDescription"
-          placeholder="Add a description (optional)"
-          rows="2"
-          [(ngModel)]="newTodoDescription"
-        ></textarea>
-        <label class="visually-hidden" for="newTodoCategory">Category</label>
-        <select
-          id="newTodoCategory"
-          class="add-todo__category"
-          name="newTodoCategory"
-          [(ngModel)]="newTodoCategory"
-        >
-          @for (category of categories; track category) {
-            <option [value]="category">{{ category }}</option>
-          }
-        </select>
-      </div>
-    }
   </form>
 
   @if (hasTodos()) {
@@ -161,7 +218,7 @@
     <ul class="todo-list">
       @for (todo of filteredTodos(); track trackById($index, todo)) {
         <li
-          class="todo-item"
+          [class]="'todo-item ' + categoryAccentClass(todo.category)"
           [class.todo-item--completed]="todo.completed"
           animate.enter="todo-enter"
           animate.leave="todo-leave"
@@ -240,7 +297,21 @@
                 aria-label="Edit todo"
                 (click)="startEditing(todo)"
               >
-                Edit
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 20l.9-3.6L16.4 5 19 7.6 7.6 19.1 4 20z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </button>
               <button
                 type="button"
@@ -249,7 +320,21 @@
                 aria-label="Delete todo"
                 (click)="removeTodo(todo.id)"
               >
-                &times;
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
               </button>
             </div>
           }
@@ -258,21 +343,54 @@
     </ul>
 
     <footer class="footer" aria-live="polite">
-      <span class="footer__count">
-        {{ activeCount() }} {{ activeCount() === 1 ? 'item' : 'items' }} left
-      </span>
-      <span class="footer__count footer__count--completed"> {{ completedCount() }} completed </span>
+      <div class="footer__summary">
+        <span class="footer__count">
+          {{ activeCount() }} {{ activeCount() === 1 ? 'item' : 'items' }} left
+        </span>
+        <span class="footer__dot" aria-hidden="true"></span>
+        <span class="footer__count footer__count--completed">
+          {{ completedCount() }} completed
+        </span>
+      </div>
       <button
         type="button"
         class="footer__clear"
         [disabled]="completedCount() === 0"
         (click)="clearCompleted()"
       >
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          aria-hidden="true"
+        >
+          <path
+            d="M5 7h14M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
         Clear completed
       </button>
     </footer>
   } @else {
     <div class="empty-state empty-state--first-run">
+      <svg
+        class="empty-state__icon"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        aria-hidden="true"
+      >
+        <path d="M9 12.5l2 2 4-5" stroke-linecap="round" stroke-linejoin="round" />
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      </svg>
       <p>No todos yet.</p>
       <button type="button" class="empty-state__action" (click)="focusAddInput()">
         Add your first todo
