@@ -39,6 +39,7 @@ body {
   --color-chip-ideas-bg: #fdf1d9;
   --color-chip-ideas-text: #8a5a00;
   --shadow-surface: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-surface-sm: 0 6px 20px rgba(63, 61, 86, 0.12);
 }
 
 [data-theme='dark'] {
@@ -70,10 +71,13 @@ body {
   --color-chip-ideas-bg: #4a3710;
   --color-chip-ideas-text: #ffd98a;
   --shadow-surface: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-surface-sm: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 body {
   background: linear-gradient(135deg, var(--color-page-start) 0%, var(--color-page-end) 100%);
   min-height: 100vh;
+  padding: 0.75rem;
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   transition: background 0.2s ease;
 }

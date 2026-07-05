@@ -141,6 +141,14 @@ export class App {
   }
 
   categoryChipClass(category: string): string {
-    return `todo-item__category todo-item__category--${category.toLowerCase()}`;
+    return `todo-item__category todo-item__category--${this.categorySlug(category)}`;
+  }
+
+  categoryAccentClass(category: string): string {
+    return `todo-item--accent-${this.categorySlug(category)}`;
+  }
+
+  private categorySlug(category: string): string {
+    return category.toLowerCase();
   }
 }

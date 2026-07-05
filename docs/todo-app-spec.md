@@ -54,6 +54,8 @@ Default categories: `Personal`, `Work`, `Errands`, `Ideas`.
   specific to that category (`DESIGN.md`'s locked chip palette — Personal violet,
   Work blue, Errands green, Ideas amber), in addition to the text label. Chip colors
   pass WCAG AA contrast in both light and dark themes.
+- Each todo row also carries a left-edge accent border in that same category color,
+  reinforcing the chip for at-a-glance scanning without adding a new color.
 - Status (All / Active / Completed) and category (All categories / Personal / Work /
   Errands / Ideas) filters render as one unified row of ghost-button chips — the same
   visual pattern for both — rather than a segmented control paired with a native
@@ -92,10 +94,13 @@ Default categories: `Personal`, `Work`, `Errands`, `Ideas`.
 
 ## Mobile-first layout
 
-- Base (unprefixed) CSS targets small screens: full-bleed layout, stacked form rows,
-  stacked toolbar/filters, minimum 44px touch targets on buttons and inputs.
+- Base (unprefixed) CSS targets small screens: the app renders as an inset card
+  (rounded corners, elevation, framed by the gradient page background) rather than
+  a full-bleed flat surface, with stacked form rows, stacked toolbar/filters, and
+  minimum 44px touch targets on buttons and inputs.
 - A `min-width: 600px` media query progressively enhances the layout for larger
-  viewports (card container with max-width, side-by-side form rows and toolbar).
+  viewports (wider card container with max-width, stronger elevation, side-by-side
+  form rows and toolbar).
 
 ## Accessibility
 

@@ -175,12 +175,62 @@ Breakpoint stays at `600px` (mobile-first base styles, one `min-width:
 Two radius values, locked:
 
 - `8px` — controls: buttons, inputs, selects, list rows (`.todo-item`).
-- `12px` — the outer app card container at `>=600px` only.
+- `12px` — the outer app card container, all breakpoints (see addendum below).
 
-Shadow: one elevation token, `--shadow-surface`, applied **only** to the
-outer card container at `>=600px`. Flat surfaces — list rows, chips, the
+Shadow: one elevation token, `--shadow-surface` (`>=600px`) plus a lighter
+`--shadow-surface-sm` variant (`<600px`, see addendum below), applied
+**only** to the outer card container. Flat surfaces — list rows, chips, the
 toolbar — never get a shadow; elevation is reserved for the single
 "floating card on a gradient page" moment, not decoration on every surface.
+Category-color row accents (see addendum) are a left border, not a shadow,
+and don't violate this rule.
+
+### Addendum — mobile card shell (issue #14)
+
+Slice #8 shipped a mobile viewport that read as "basically unchanged" —
+`.app` filled the full mobile viewport edge-to-edge with a flat surface
+color and no radius/shadow (both were locked to `>=600px` only), so the
+gradient page background never showed and the app never read as a
+"designed" card on the device most users actually test on. This addendum
+amends the two rules above rather than adding new tokens:
+
+- The outer `.app` shell now gets its `12px` radius and a shadow at every
+  breakpoint, not just `>=600px`. `body` gets `0.75rem` padding (already on
+  the locked spacing scale) so the page gradient frames the card on mobile.
+- A new `--shadow-surface-sm` token (`0 6px 20px rgba(63, 61, 86, 0.12)`
+  light / `0 6px 20px rgba(0, 0, 0, 0.45)` dark) is used below `600px`; the
+  existing `--shadow-surface` continues to apply at `>=600px` where the
+  card floats further off the page.
+- Todo rows and the filter toolbar keep their flat, shadow-less treatment
+  per the rule above — only the outer shell changed.
+- The theme toggle is now an inline SVG sun/moon icon button (circular,
+  44×44) instead of the emoji-text button — this implements the icon
+  decision already locked in the Iconography section below, deferred at
+  the time this document was first written.
+- Todo rows get a `4px` left-border accent using each category's existing
+  chip *text* color (not a new hue) — a locked color reused as a border
+  instead of a new decorative fill, so it doesn't touch the "don't add a
+  5th color" or "single brand-voltage fill" rules.
+- The two status/category filter groups now sit inside one pill-shaped
+  "track" (`--color-surface-muted` bg, `999px` radius) so they read as a
+  single toolbar instead of two bolted-on controls; individual
+  `.filters__button` chips drop their resting border (the track supplies
+  the visual grouping instead) — see the updated Component specs table.
+- `.todo-item__edit-button` / `.todo-item__delete` become circular
+  icon-only ghost buttons (pencil/trash, no resting border) instead of
+  bordered text buttons — directly addressing issue #14's "less
+  admin-ish edit/delete buttons" ask. `.footer__clear` keeps its bordered
+  ghost-button treatment (it's a standalone action, not part of a row of
+  repeated per-item controls), so it's split into its own table row rather
+  than sharing one with the filter chips.
+- The primary Add button relies on its solid `--color-primary` fill (vs.
+  `--color-primary-muted` when disabled) to read as "enabled" — no
+  drop-shadow was added, since shadow stays reserved for the outer card
+  shell per the rule above.
+- The theme toggle's accessible name is now a single dynamic
+  `[attr.aria-label]` ("Switch to light/dark mode") rather than a static
+  label plus a visually-hidden span, so there's one unambiguous source for
+  the accessible name.
 
 ## Iconography
 
@@ -189,38 +239,43 @@ toolbar — never get a shadow; elevation is reserved for the single
 `docs/ui-ux-redesign-plan.md`) with a small, consistent inline SVG icon set
 — emoji rendering varies by OS/font stack and doesn't match the rest of the
 UI's weight. An icon font is unnecessary dependency weight for ~2-4 icons
-in an app this size (theme toggle sun/moon being the only current
-candidate; edit/delete icons are a later-slice decision, not locked here).
+in an app this size.
 
 Tokens:
 - Size: `16px` (inline with text), `20px` (inside a 44px button), `24px`
   (standalone, e.g. empty-state icon).
-- Stroke width: `1.5px`, `currentColor` stroke, no fill — icons inherit
-  text color so they theme automatically with light/dark tokens.
+- Stroke width: `1.5px` (`1.75px` for the smaller edit/delete/clear glyphs),
+  `currentColor` stroke, no fill — icons inherit text color so they theme
+  automatically with light/dark tokens.
 - ViewBox: `0 0 24 24` for all icons regardless of rendered size, so the
   set stays internally consistent.
 
-This is a decision lock only — implementing the actual icon replacement is
-a later slice's job, not this one's.
+**Update (issue #14):** the theme toggle (sun/moon) and the todo-row
+edit/delete actions (pencil/trash, plus the footer's clear-completed
+action) now all use this icon set — the edit/delete deferral noted in the
+original version of this section is lifted; icon+label legibility for
+those three controls is covered by the accessible-name requirements in the
+Accessibility contract below, not by visible text.
 
 ## Component specs
 
 Every interactive component must define all five states below. `min target`
-confirms the 44×44 CSS px rule from `docs/todo-app-spec.md`; existing
-violations (`.filters__button`, `.todo-item__edit-button`,
-`.todo-item__delete`, `.footer__clear` at 40px) are a locked target for a
-later slice (see plan §7 slice 3), not fixed by this document.
+confirms the 44×44 CSS px rule from `docs/todo-app-spec.md` — met by every
+control below (the touch-target fix landed in an earlier slice).
 
 | Component | Default | Hover | Focus-visible | Active | Disabled | Min target |
 |---|---|---|---|---|---|---|
-| Primary button (`.add-todo__button`) | `--color-primary` bg, white text | `--color-primary-hover` bg | ring (see below) | slightly darker bg | `--color-primary-muted` bg, `not-allowed` cursor | 44×44 |
-| Secondary/ghost button (`.filters__button`, `.footer__clear`) | transparent bg, muted text, transparent border | bordered in `--color-border` | ring | `--color-primary` text+border (active filter state) | muted text, `not-allowed` cursor | 44×44 |
-| Destructive button (`.todo-item__delete`) | transparent bg, `--color-danger` text/border | `--color-danger` bg, white text | ring | darker danger bg | n/a (always available) | 44×44 |
+| Primary button (`.add-todo__button`) | `--color-primary` bg, white text | `--color-primary-hover` bg | ring (see below) | slightly darker bg (`translateY(1px)` press, gated on reduced-motion) | `--color-primary-muted` bg, `not-allowed` cursor | 44×44 |
+| Filter chip (`.filters__button`, inside the `.filters` pill track) | transparent bg, muted text, no border | `--color-surface-hover` bg, full text color | ring | `--color-primary` text, `--color-primary-soft` bg (no border — the pill track supplies the visual grouping) | n/a | 44×44 |
+| Secondary/ghost button (`.footer__clear`) | transparent bg, muted text, bordered in `--color-border` | `--color-danger` text+border | ring | n/a | muted text, `not-allowed` cursor | 44×44 |
+| Icon ghost button (`.todo-item__edit-button`) | transparent bg, muted text, no border, circular | `--color-primary` text, `--color-primary-soft` bg | ring | n/a | n/a | 44×44 |
+| Destructive icon button (`.todo-item__delete`) | transparent bg, `--color-danger` text, no border, circular | `--color-danger` bg, white text | ring | darker danger bg | n/a (always available) | 44×44 |
 | Text input / textarea | `--color-surface` bg, `--color-border` border | border → `--color-primary` on focus (see below) | ring, replaces border-only change | n/a | n/a | 44×44 |
 | Select | same as text input | same | ring | n/a | n/a | 44×44 |
 | Checkbox | native, `accent-color: --color-primary` | n/a | ring on the control, not just the label | checked = filled | n/a | 24×24 control, 44×44 tap area via label |
 | Category chip | bg/text pair per category (see Color system) | n/a — chips are not interactive | n/a | n/a | n/a | n/a (not a control) |
-| Segmented filter control (`.filters`) | ghost buttons in a row | per-button hover | per-button ring | active = filled `--color-primary-soft` bg | n/a | 44×44 per segment |
+| Category row accent (`.todo-item` left border) | 4px border in the todo's category text color | n/a — not interactive | n/a | n/a | dims to `--color-border` when completed | n/a (not a control) |
+| Unified filter toolbar (`.filters`) | pill track (`--color-surface-muted` bg, `999px` radius) containing ghost chip buttons | per-button hover | per-button ring | active chip = filled `--color-primary-soft` bg | n/a | 44×44 per segment |
 
 ## Motion tokens
 
