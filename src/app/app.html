@@ -1,19 +1,54 @@
 <main class="app">
-  <h1 class="app__title">Todo</h1>
+  <header class="app__header">
+    <h1 class="app__title">Todo</h1>
+    <button
+      type="button"
+      class="theme-toggle"
+      (click)="toggleTheme()"
+      [attr.aria-pressed]="isDarkTheme()"
+      aria-label="Toggle dark mode"
+    >
+      {{ isDarkTheme() ? '☀️ Light' : '🌙 Dark' }}
+    </button>
+  </header>
 
   <form class="add-todo" (ngSubmit)="addTodo()">
-    <input
-      class="add-todo__input"
-      type="text"
-      name="newTodo"
-      placeholder="What needs to be done?"
-      autocomplete="off"
-      [(ngModel)]="newTodoText"
-      #newTodoInput
-    />
-    <button class="add-todo__button" type="submit" [disabled]="!newTodoText().trim()">
-      Add
-    </button>
+    <div class="add-todo__row">
+      <label class="visually-hidden" for="newTodo">What needs to be done?</label>
+      <input
+        id="newTodo"
+        class="add-todo__input"
+        type="text"
+        name="newTodo"
+        placeholder="What needs to be done?"
+        autocomplete="off"
+        [(ngModel)]="newTodoText"
+        #newTodoInput
+      />
+      <button class="add-todo__button" type="submit" [disabled]="!newTodoText().trim()">Add</button>
+    </div>
+    <div class="add-todo__row add-todo__row--details">
+      <label class="visually-hidden" for="newTodoDescription">Description (optional)</label>
+      <textarea
+        id="newTodoDescription"
+        class="add-todo__description"
+        name="newTodoDescription"
+        placeholder="Add a description (optional)"
+        rows="2"
+        [(ngModel)]="newTodoDescription"
+      ></textarea>
+      <label class="visually-hidden" for="newTodoCategory">Category</label>
+      <select
+        id="newTodoCategory"
+        class="add-todo__category"
+        name="newTodoCategory"
+        [(ngModel)]="newTodoCategory"
+      >
+        @for (category of categories; track category) {
+          <option [value]="category">{{ category }}</option>
+        }
+      </select>
+    </div>
   </form>
 
   @if (hasTodos()) {
@@ -53,37 +88,99 @@
           Completed
         </button>
       </div>
+
+      <label class="category-filter">
+        <span class="visually-hidden">Filter by category</span>
+        <select
+          class="category-filter__select"
+          [ngModel]="categoryFilter()"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="setCategoryFilter($event)"
+        >
+          <option value="all">All categories</option>
+          @for (category of categories; track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+      </label>
     </section>
 
     <ul class="todo-list">
       @for (todo of filteredTodos(); track trackById($index, todo)) {
         <li class="todo-item" [class.todo-item--completed]="todo.completed">
           @if (editingId() === todo.id) {
-            <input
-              class="todo-item__edit"
-              type="text"
-              [(ngModel)]="editingText"
-              [ngModelOptions]="{ standalone: true }"
-              (keyup.enter)="saveEdit(todo.id)"
-              (keyup.escape)="cancelEdit()"
-              (blur)="saveEdit(todo.id)"
-              #editInput
-            />
+            <div class="todo-edit">
+              <label class="visually-hidden" [for]="'edit-text-' + todo.id">Title</label>
+              <input
+                [id]="'edit-text-' + todo.id"
+                class="todo-edit__input"
+                type="text"
+                [(ngModel)]="editingText"
+                [ngModelOptions]="{ standalone: true }"
+                (keyup.escape)="cancelEdit()"
+                #editInput
+              />
+              <label class="visually-hidden" [for]="'edit-description-' + todo.id">
+                Description
+              </label>
+              <textarea
+                [id]="'edit-description-' + todo.id"
+                class="todo-edit__description"
+                rows="2"
+                placeholder="Description (optional)"
+                [(ngModel)]="editingDescription"
+                [ngModelOptions]="{ standalone: true }"
+                (keyup.escape)="cancelEdit()"
+              ></textarea>
+              <label class="visually-hidden" [for]="'edit-category-' + todo.id">Category</label>
+              <select
+                [id]="'edit-category-' + todo.id"
+                class="todo-edit__category"
+                [(ngModel)]="editingCategory"
+                [ngModelOptions]="{ standalone: true }"
+              >
+                @for (category of categories; track category) {
+                  <option [value]="category">{{ category }}</option>
+                }
+              </select>
+              <div class="todo-edit__actions">
+                <button type="button" class="todo-edit__save" (click)="saveEdit(todo.id)">
+                  Save
+                </button>
+                <button type="button" class="todo-edit__cancel" (click)="cancelEdit()">
+                  Cancel
+                </button>
+              </div>
+            </div>
           } @else {
             <label class="todo-item__label">
               <input
                 type="checkbox"
                 [checked]="todo.completed"
                 (change)="toggleTodo(todo.id)"
+                [attr.aria-label]="
+                  'Mark ' + todo.text + ' as ' + (todo.completed ? 'active' : 'completed')
+                "
               />
-              <span class="todo-item__text" (dblclick)="startEditing(todo)">{{ todo.text }}</span>
+              <span class="todo-item__content">
+                <span class="todo-item__title-row">
+                  <span class="todo-item__text" (dblclick)="startEditing(todo)">{{
+                    todo.text
+                  }}</span>
+                  <span class="todo-item__category">{{ todo.category }}</span>
+                </span>
+                @if (todo.description) {
+                  <span class="todo-item__description">{{ todo.description }}</span>
+                }
+              </span>
             </label>
             <div class="todo-item__actions">
               <button
                 type="button"
                 class="todo-item__edit-button"
                 title="Edit"
-                (click)="editByPrompt(todo)"
+                aria-label="Edit todo"
+                (click)="startEditing(todo)"
               >
                 Edit
               </button>
@@ -91,6 +188,7 @@
                 type="button"
                 class="todo-item__delete"
                 title="Delete"
+                aria-label="Delete todo"
                 (click)="removeTodo(todo.id)"
               >
                 &times;
@@ -105,9 +203,7 @@
       <span class="footer__count">
         {{ activeCount() }} {{ activeCount() === 1 ? 'item' : 'items' }} left
       </span>
-      <span class="footer__count footer__count--completed">
-        {{ completedCount() }} completed
-      </span>
+      <span class="footer__count footer__count--completed"> {{ completedCount() }} completed </span>
       <button
         type="button"
         class="footer__clear"

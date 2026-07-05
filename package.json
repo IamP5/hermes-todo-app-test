@@ -6,7 +6,10 @@
     "start": "ng serve --host 0.0.0.0 --port 4200 --allowed-hosts",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "sdd:check": "npm run test -- --watch=false && npm run build",
+    "verify": "npm run sdd:check"
   },
   "private": true,
   "packageManager": "npm@10.9.8",
