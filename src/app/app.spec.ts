@@ -225,6 +225,72 @@ describe('App', () => {
     expect(app.filteredTodos().length).toBe(2);
   });
 
+  it('should render status and category filters as a single unified chip row', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Any todo');
+    app.addTodo();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const filterRoot = compiled.querySelector('.filters');
+    expect(filterRoot).not.toBeNull();
+    expect(compiled.querySelector('.category-filter__select')).toBeNull();
+    const buttons = Array.from(filterRoot!.querySelectorAll('.filters__button')).map(
+      (button) => button.textContent?.trim(),
+    );
+    expect(buttons).toEqual([
+      'All',
+      'Active',
+      'Completed',
+      'All categories',
+      'Personal',
+      'Work',
+      'Errands',
+      'Ideas',
+    ]);
+  });
+
+  it('should combine status and category chip selection as AND and support clearing back to All', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Work active');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    app.newTodoText.set('Work completed');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    fixture.detectChanges();
+    app.toggleTodo(app.todos()[1].id);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const findButton = (text: string) =>
+      Array.from(compiled.querySelectorAll('.filters__button')).find(
+        (button) => button.textContent?.trim() === text,
+      ) as HTMLButtonElement;
+
+    findButton('Active').click();
+    findButton('Work').click();
+    fixture.detectChanges();
+
+    expect(app.filter()).toBe('active');
+    expect(app.categoryFilter()).toBe('Work');
+    expect(app.filteredTodos().length).toBe(1);
+    expect(app.filteredTodos()[0].text).toBe('Work active');
+    expect(findButton('Active').className).toContain('filters__button--active');
+    expect(findButton('Work').className).toContain('filters__button--active');
+
+    findButton('All categories').click();
+    fixture.detectChanges();
+    expect(app.categoryFilter()).toBe('all');
+    expect(app.filteredTodos().length).toBe(1);
+  });
+
   it('should toggle dark mode and persist the preference', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
@@ -241,6 +307,139 @@ describe('App', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe(
       app.isDarkTheme() ? 'dark' : 'light',
     );
+  });
+
+  it('should hide description/category behind a collapsed "Add details" control by default', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(app.detailsExpanded()).toBe(false);
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('#newTodoDescription')).toBeNull();
+    expect(compiled.querySelector('#newTodoCategory')).toBeNull();
+
+    const toggle = compiled.querySelector('.add-todo__details-toggle') as HTMLButtonElement;
+    expect(toggle.textContent).toContain('Add details');
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(app.detailsExpanded()).toBe(true);
+    expect(compiled.querySelector('#newTodoDescription')).not.toBeNull();
+    expect(compiled.querySelector('#newTodoCategory')).not.toBeNull();
+    expect(toggle.textContent).toContain('Hide details');
+  });
+
+  it('should not discard description/category when collapsing the details panel', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    app.newTodoDescription.set('Bring snacks');
+    app.newTodoCategory.set('Errands');
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    fixture.detectChanges();
+
+    expect(app.newTodoDescription()).toBe('Bring snacks');
+    expect(app.newTodoCategory()).toBe('Errands');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const summary = compiled.querySelector('.add-todo__details-summary');
+    expect(summary?.textContent).toContain('Errands');
+    expect(summary?.textContent).toContain('Bring snacks');
+  });
+
+  it('should reset the details panel to collapsed after a successful add', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    app.newTodoText.set('Task with details');
+    app.newTodoDescription.set('Some detail');
+    app.addTodo();
+    fixture.detectChanges();
+
+    expect(app.detailsExpanded()).toBe(false);
+    expect(app.newTodoDescription()).toBe('');
+  });
+
+  it('should focus the add input from the first-run empty-state CTA', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const cta = compiled.querySelector('.empty-state--first-run .empty-state__action') as HTMLButtonElement;
+    expect(cta).not.toBeNull();
+
+    cta.click();
+    fixture.detectChanges();
+
+    expect(document.activeElement?.id).toBe('newTodo');
+  });
+
+  it('should show a distinct "no matches" empty state (not the first-run message) when a filter hides everything', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Only todo');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    fixture.detectChanges();
+
+    app.setCategoryFilter('Personal');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.empty-state--filtered')).not.toBeNull();
+    expect(compiled.querySelector('.empty-state--first-run')).toBeNull();
+    expect(compiled.querySelector('.empty-state--filtered')?.textContent).toContain(
+      'No todos match this filter',
+    );
+
+    const clearButton = compiled.querySelector(
+      '.empty-state--filtered .empty-state__action',
+    ) as HTMLButtonElement;
+    clearButton.click();
+    fixture.detectChanges();
+
+    expect(app.categoryFilter()).toBe('all');
+    expect(app.filter()).toBe('all');
+    expect(compiled.querySelector('.empty-state--filtered')).toBeNull();
+  });
+
+  it('should color each category chip with its own hue', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Work item');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const chip = compiled.querySelector('.todo-item__category');
+    expect(chip?.className).toContain('todo-item__category--work');
+  });
+
+  it('should expose the active/completed counts via an aria-live region', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Announce me');
+    app.addTodo();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const footer = compiled.querySelector('.footer');
+    expect(footer?.getAttribute('aria-live')).toBe('polite');
+    expect(footer?.textContent).toContain('1 item left');
   });
 
   it('should load legacy todos missing description and category with sensible defaults', () => {

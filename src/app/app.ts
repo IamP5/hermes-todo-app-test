@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CATEGORIES, DEFAULT_CATEGORY, Todo, TodoFilter } from './models/todo.model';
 import { TodoService } from './services/todo.service';
@@ -15,11 +15,15 @@ export class App {
   private readonly todoService = inject(TodoService);
   private readonly themeService = inject(ThemeService);
 
+  private readonly newTodoInput = viewChild<ElementRef<HTMLInputElement>>('newTodoInput');
+
   readonly categories = CATEGORIES;
+  readonly defaultCategory = DEFAULT_CATEGORY;
 
   readonly newTodoText = signal('');
   readonly newTodoDescription = signal('');
   readonly newTodoCategory = signal(DEFAULT_CATEGORY);
+  readonly detailsExpanded = signal(false);
 
   readonly filter = signal<TodoFilter>('all');
   readonly categoryFilter = signal<string>('all');
@@ -48,6 +52,12 @@ export class App {
 
   readonly hasTodos = computed(() => this.todos().length > 0);
 
+  readonly noMatchesForFilter = computed(() => this.hasTodos() && this.filteredTodos().length === 0);
+
+  readonly hasDetailsSummary = computed(
+    () => this.newTodoDescription().trim().length > 0 || this.newTodoCategory() !== DEFAULT_CATEGORY,
+  );
+
   addTodo(): void {
     this.todoService.add(this.newTodoText(), {
       description: this.newTodoDescription(),
@@ -56,6 +66,11 @@ export class App {
     this.newTodoText.set('');
     this.newTodoDescription.set('');
     this.newTodoCategory.set(DEFAULT_CATEGORY);
+    this.detailsExpanded.set(false);
+  }
+
+  toggleDetails(): void {
+    this.detailsExpanded.set(!this.detailsExpanded());
   }
 
   toggleTodo(id: string): void {
@@ -80,6 +95,15 @@ export class App {
 
   toggleAll(completed: boolean): void {
     this.todoService.toggleAll(completed);
+  }
+
+  clearFilters(): void {
+    this.filter.set('all');
+    this.categoryFilter.set('all');
+  }
+
+  focusAddInput(): void {
+    this.newTodoInput()?.nativeElement.focus();
   }
 
   toggleTheme(): void {
@@ -114,5 +138,9 @@ export class App {
 
   trackById(_index: number, todo: Todo): string {
     return todo.id;
+  }
+
+  categoryChipClass(category: string): string {
+    return `todo-item__category todo-item__category--${category.toLowerCase()}`;
   }
 }

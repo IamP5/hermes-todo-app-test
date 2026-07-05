@@ -30,8 +30,14 @@ body {
   --color-primary-ring: rgba(108, 99, 255, 0.15);
   --color-danger: #e12d39;
   --color-danger-soft: #f3d2d2;
-  --color-chip-bg: #eceffb;
-  --color-chip-text: #4b4a86;
+  --color-chip-personal-bg: #ece9ff;
+  --color-chip-personal-text: #4b3aad;
+  --color-chip-work-bg: #e3eefd;
+  --color-chip-work-text: #1d4ed8;
+  --color-chip-errands-bg: #e2f6ea;
+  --color-chip-errands-text: #1c6b3c;
+  --color-chip-ideas-bg: #fdf1d9;
+  --color-chip-ideas-text: #8a5a00;
   --shadow-surface: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
@@ -55,8 +61,14 @@ body {
   --color-primary-ring: rgba(139, 131, 255, 0.25);
   --color-danger: #ff6b78;
   --color-danger-soft: #4a2a2f;
-  --color-chip-bg: #2e2a55;
-  --color-chip-text: #c9c6ff;
+  --color-chip-personal-bg: #352a66;
+  --color-chip-personal-text: #d9d2ff;
+  --color-chip-work-bg: #1c3a63;
+  --color-chip-work-text: #bcdcff;
+  --color-chip-errands-bg: #1d3f2c;
+  --color-chip-errands-text: #a9e8c0;
+  --color-chip-ideas-bg: #4a3710;
+  --color-chip-ideas-text: #ffd98a;
   --shadow-surface: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 

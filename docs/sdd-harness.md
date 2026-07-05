@@ -2,13 +2,20 @@
 
 This repo uses a lightweight spec-driven workflow: the spec is the source of truth
 for *what* the app should do, and tests are how we prove it still does that.
+[`DESIGN.md`](../DESIGN.md) at the repo root is the second source of truth for
+*how it looks/moves* — concrete color, type, spacing, radius, motion, and
+iconography tokens. Treat it as authoritative: read it before making any visual
+change, and update it (not just the CSS) when a visual decision changes, the
+same way `docs/todo-app-spec.md` gets updated for behavior changes.
 
 ## Working loop
 
 1. **Update the spec first.** Before changing behavior, edit
    [`docs/todo-app-spec.md`](./todo-app-spec.md) so the acceptance criteria describe
    the feature you're about to build or change. If you can't state the acceptance
-   criteria yet, you're not ready to write code.
+   criteria yet, you're not ready to write code. For visual changes, check
+   [`DESIGN.md`](../DESIGN.md) first — implement against its locked tokens rather
+   than re-deciding colors/spacing/motion per PR.
 2. **Implement.** Make the smallest change that satisfies the updated spec. Prefer
    editing existing services/components over introducing new abstractions.
 3. **Run harness checks.** `npm run sdd:check` runs the full test suite and a

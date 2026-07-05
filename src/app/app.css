@@ -14,6 +14,17 @@
   border: 0;
 }
 
+/* One consistent focus-visible treatment for every interactive element
+   (buttons previously relied on the browser default outline; inputs used a
+   custom ring) — see DESIGN.md Accessibility contract. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
 .app {
   box-sizing: border-box;
   margin: 0 auto;
@@ -105,11 +116,10 @@
   resize: vertical;
 }
 
-.add-todo__input:focus,
-.add-todo__description:focus,
-.add-todo__category:focus {
+.add-todo__input:focus-visible,
+.add-todo__description:focus-visible,
+.add-todo__category:focus-visible {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
 .add-todo__button {
@@ -134,6 +144,60 @@
   cursor: not-allowed;
 }
 
+.add-todo__row--toggle {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.add-todo__details-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.add-todo__details-toggle:hover {
+  color: var(--color-primary);
+  border-color: var(--color-border);
+}
+
+.add-todo__details-icon--expanded {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .add-todo__details-icon {
+    transition: transform 0.15s ease;
+  }
+}
+
+.add-todo__details-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.add-todo__details-summary-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
 .toolbar {
   display: flex;
   flex-direction: column;
@@ -147,6 +211,7 @@
 .toggle-all {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: 0.4rem;
   font-size: 0.9rem;
   color: var(--color-text-muted);
@@ -156,12 +221,32 @@
 
 .filters {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding-bottom: 0.15rem;
+}
+
+.filters__group {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
   gap: 0.35rem;
 }
 
+.filters__divider {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 1px;
+  background: var(--color-border-subtle);
+}
+
 .filters__button {
-  min-height: 40px;
+  min-height: 44px;
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -180,21 +265,6 @@
   color: var(--color-primary);
   border-color: var(--color-primary);
   background: var(--color-primary-soft);
-}
-
-.category-filter {
-  display: block;
-}
-
-.category-filter__select {
-  width: 100%;
-  min-height: 44px;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.85rem;
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
 }
 
 .todo-list {
@@ -217,6 +287,7 @@
   background: var(--color-surface-muted);
   border-radius: 8px;
   transition: background 0.15s ease;
+  transform-origin: top center;
 }
 
 .todo-item:hover {
@@ -226,6 +297,7 @@
 .todo-item__label {
   display: flex;
   align-items: flex-start;
+  min-height: 44px;
   gap: 0.65rem;
   flex: 1;
   min-width: 0;
@@ -265,15 +337,39 @@
   padding: 0.1rem 0.55rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-chip-text);
-  background: var(--color-chip-bg);
   border-radius: 999px;
+}
+
+.todo-item__category--personal {
+  color: var(--color-chip-personal-text);
+  background: var(--color-chip-personal-bg);
+}
+
+.todo-item__category--work {
+  color: var(--color-chip-work-text);
+  background: var(--color-chip-work-bg);
+}
+
+.todo-item__category--errands {
+  color: var(--color-chip-errands-text);
+  background: var(--color-chip-errands-bg);
+}
+
+.todo-item__category--ideas {
+  color: var(--color-chip-ideas-text);
+  background: var(--color-chip-ideas-bg);
 }
 
 .todo-item__description {
   overflow-wrap: anywhere;
   font-size: 0.85rem;
   color: var(--color-text-muted);
+}
+
+.todo-item__text {
+  transition:
+    color 0.12s ease-out,
+    text-decoration-color 0.12s ease-out;
 }
 
 .todo-item--completed .todo-item__text {
@@ -289,7 +385,7 @@
 
 .todo-item__edit-button,
 .todo-item__delete {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.25rem 0.55rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -306,6 +402,7 @@
 }
 
 .todo-item__delete {
+  min-width: 44px;
   font-size: 1.1rem;
   line-height: 1;
   color: var(--color-danger);
@@ -391,7 +488,7 @@
 }
 
 .footer__clear {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -413,9 +510,82 @@
 }
 
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   padding: 2rem 0;
   text-align: center;
   color: var(--color-text-subtle);
+}
+
+.empty-state--filtered {
+  padding: 1.25rem 0;
+}
+
+.empty-state__action {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.empty-state__action:hover {
+  background: var(--color-primary-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .todo-enter {
+    animation: todo-fade-in 180ms ease-out;
+  }
+
+  .todo-leave {
+    animation: todo-fade-out 180ms ease-in forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todo-enter,
+  .todo-leave {
+    animation: todo-fade-instant 1ms linear;
+  }
+}
+
+@keyframes todo-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes todo-fade-out {
+  from {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  to {
+    opacity: 0;
+    transform: scaleY(0.85);
+  }
+}
+
+@keyframes todo-fade-instant {
+  from {
+    opacity: 0.99;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (min-width: 600px) {
@@ -450,10 +620,6 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .category-filter__select {
-    width: auto;
   }
 
   .footer {
