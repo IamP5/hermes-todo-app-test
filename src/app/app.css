@@ -147,6 +147,7 @@
 .toggle-all {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: 0.4rem;
   font-size: 0.9rem;
   color: var(--color-text-muted);
@@ -161,7 +162,7 @@
 }
 
 .filters__button {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -226,6 +227,7 @@
 .todo-item__label {
   display: flex;
   align-items: flex-start;
+  min-height: 44px;
   gap: 0.65rem;
   flex: 1;
   min-width: 0;
@@ -289,7 +291,7 @@
 
 .todo-item__edit-button,
 .todo-item__delete {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.25rem 0.55rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -306,6 +308,7 @@
 }
 
 .todo-item__delete {
+  min-width: 44px;
   font-size: 1.1rem;
   line-height: 1;
   color: var(--color-danger);
@@ -391,7 +394,7 @@
 }
 
 .footer__clear {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
