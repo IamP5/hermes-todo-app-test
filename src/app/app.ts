@@ -139,4 +139,8 @@ export class App {
   trackById(_index: number, todo: Todo): string {
     return todo.id;
   }
+
+  categoryChipClass(category: string): string {
+    return `todo-item__category todo-item__category--${category.toLowerCase()}`;
+  }
 }

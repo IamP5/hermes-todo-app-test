@@ -52,12 +52,7 @@
       @if (!detailsExpanded() && hasDetailsSummary()) {
         <span class="add-todo__details-summary">
           @if (newTodoCategory() !== defaultCategory) {
-            <span
-              [class]="
-                'todo-item__category todo-item__category--' + newTodoCategory().toLowerCase()
-              "
-              >{{ newTodoCategory() }}</span
-            >
+            <span [class]="categoryChipClass(newTodoCategory())">{{ newTodoCategory() }}</span>
           }
           @if (newTodoDescription().trim()) {
             <span class="add-todo__details-summary-text">{{ newTodoDescription() }}</span>
@@ -230,10 +225,7 @@
                   <span class="todo-item__text" (dblclick)="startEditing(todo)">{{
                     todo.text
                   }}</span>
-                  <span
-                    [class]="'todo-item__category todo-item__category--' + todo.category.toLowerCase()"
-                    >{{ todo.category }}</span
-                  >
+                  <span [class]="categoryChipClass(todo.category)">{{ todo.category }}</span>
                 </span>
                 @if (todo.description) {
                   <span class="todo-item__description">{{ todo.description }}</span>

@@ -172,12 +172,14 @@ select:focus-visible {
   border-color: var(--color-border);
 }
 
-.add-todo__details-icon {
-  transition: transform 0.15s ease;
-}
-
 .add-todo__details-icon--expanded {
   transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .add-todo__details-icon {
+    transition: transform 0.15s ease;
+  }
 }
 
 .add-todo__details-summary {
