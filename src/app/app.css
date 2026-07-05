@@ -14,6 +14,17 @@
   border: 0;
 }
 
+/* One consistent focus-visible treatment for every interactive element
+   (buttons previously relied on the browser default outline; inputs used a
+   custom ring) — see DESIGN.md Accessibility contract. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
 .app {
   box-sizing: border-box;
   margin: 0 auto;
@@ -105,11 +116,10 @@
   resize: vertical;
 }
 
-.add-todo__input:focus,
-.add-todo__description:focus,
-.add-todo__category:focus {
+.add-todo__input:focus-visible,
+.add-todo__description:focus-visible,
+.add-todo__category:focus-visible {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
 .add-todo__button {

@@ -427,6 +427,21 @@ describe('App', () => {
     expect(chip?.className).toContain('todo-item__category--work');
   });
 
+  it('should expose the active/completed counts via an aria-live region', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Announce me');
+    app.addTodo();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const footer = compiled.querySelector('.footer');
+    expect(footer?.getAttribute('aria-live')).toBe('polite');
+    expect(footer?.textContent).toContain('1 item left');
+  });
+
   it('should load legacy todos missing description and category with sensible defaults', () => {
     window.localStorage.setItem(
       'angular-todo.todos',
