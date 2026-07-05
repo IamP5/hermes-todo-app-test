@@ -367,6 +367,66 @@ describe('App', () => {
     expect(app.newTodoDescription()).toBe('');
   });
 
+  it('should focus the add input from the first-run empty-state CTA', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const cta = compiled.querySelector('.empty-state--first-run .empty-state__action') as HTMLButtonElement;
+    expect(cta).not.toBeNull();
+
+    cta.click();
+    fixture.detectChanges();
+
+    expect(document.activeElement?.id).toBe('newTodo');
+  });
+
+  it('should show a distinct "no matches" empty state (not the first-run message) when a filter hides everything', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Only todo');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    fixture.detectChanges();
+
+    app.setCategoryFilter('Personal');
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.empty-state--filtered')).not.toBeNull();
+    expect(compiled.querySelector('.empty-state--first-run')).toBeNull();
+    expect(compiled.querySelector('.empty-state--filtered')?.textContent).toContain(
+      'No todos match this filter',
+    );
+
+    const clearButton = compiled.querySelector(
+      '.empty-state--filtered .empty-state__action',
+    ) as HTMLButtonElement;
+    clearButton.click();
+    fixture.detectChanges();
+
+    expect(app.categoryFilter()).toBe('all');
+    expect(app.filter()).toBe('all');
+    expect(compiled.querySelector('.empty-state--filtered')).toBeNull();
+  });
+
+  it('should color each category chip with its own hue', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Work item');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const chip = compiled.querySelector('.todo-item__category');
+    expect(chip?.className).toContain('todo-item__category--work');
+  });
+
   it('should load legacy todos missing description and category with sensible defaults', () => {
     window.localStorage.setItem(
       'angular-todo.todos',

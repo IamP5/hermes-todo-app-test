@@ -50,7 +50,10 @@ Default categories: `Personal`, `Work`, `Errands`, `Ideas`.
 
 ## Categories & filtering
 
-- Each todo displays a category chip alongside its title.
+- Each todo displays a category chip alongside its title, colored with a hue
+  specific to that category (`DESIGN.md`'s locked chip palette — Personal violet,
+  Work blue, Errands green, Ideas amber), in addition to the text label. Chip colors
+  pass WCAG AA contrast in both light and dark themes.
 - Status (All / Active / Completed) and category (All categories / Personal / Work /
   Errands / Ideas) filters render as one unified row of ghost-button chips — the same
   visual pattern for both — rather than a segmented control paired with a native

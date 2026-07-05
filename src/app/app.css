@@ -325,9 +325,27 @@
   padding: 0.1rem 0.55rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-chip-text);
-  background: var(--color-chip-bg);
   border-radius: 999px;
+}
+
+.todo-item__category--personal {
+  color: var(--color-chip-personal-text);
+  background: var(--color-chip-personal-bg);
+}
+
+.todo-item__category--work {
+  color: var(--color-chip-work-text);
+  background: var(--color-chip-work-bg);
+}
+
+.todo-item__category--errands {
+  color: var(--color-chip-errands-text);
+  background: var(--color-chip-errands-bg);
+}
+
+.todo-item__category--ideas {
+  color: var(--color-chip-ideas-text);
+  background: var(--color-chip-ideas-bg);
 }
 
 .todo-item__description {
@@ -480,9 +498,34 @@
 }
 
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   padding: 2rem 0;
   text-align: center;
   color: var(--color-text-subtle);
+}
+
+.empty-state--filtered {
+  padding: 1.25rem 0;
+}
+
+.empty-state__action {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.empty-state__action:hover {
+  background: var(--color-primary-muted);
 }
 
 @media (prefers-reduced-motion: no-preference) {

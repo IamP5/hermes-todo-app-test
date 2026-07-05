@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CATEGORIES, DEFAULT_CATEGORY, Todo, TodoFilter } from './models/todo.model';
 import { TodoService } from './services/todo.service';
@@ -14,6 +14,8 @@ import { ThemeService } from './services/theme.service';
 export class App {
   private readonly todoService = inject(TodoService);
   private readonly themeService = inject(ThemeService);
+
+  private readonly newTodoInput = viewChild<ElementRef<HTMLInputElement>>('newTodoInput');
 
   readonly categories = CATEGORIES;
   readonly defaultCategory = DEFAULT_CATEGORY;
@@ -49,6 +51,8 @@ export class App {
   });
 
   readonly hasTodos = computed(() => this.todos().length > 0);
+
+  readonly noMatchesForFilter = computed(() => this.hasTodos() && this.filteredTodos().length === 0);
 
   readonly hasDetailsSummary = computed(
     () => this.newTodoDescription().trim().length > 0 || this.newTodoCategory() !== DEFAULT_CATEGORY,
@@ -91,6 +95,15 @@ export class App {
 
   toggleAll(completed: boolean): void {
     this.todoService.toggleAll(completed);
+  }
+
+  clearFilters(): void {
+    this.filter.set('all');
+    this.categoryFilter.set('all');
+  }
+
+  focusAddInput(): void {
+    this.newTodoInput()?.nativeElement.focus();
   }
 
   toggleTheme(): void {
