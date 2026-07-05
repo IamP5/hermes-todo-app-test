@@ -1,0 +1,123 @@
+<main class="app">
+  <h1 class="app__title">Todo</h1>
+
+  <form class="add-todo" (ngSubmit)="addTodo()">
+    <input
+      class="add-todo__input"
+      type="text"
+      name="newTodo"
+      placeholder="What needs to be done?"
+      autocomplete="off"
+      [(ngModel)]="newTodoText"
+      #newTodoInput
+    />
+    <button class="add-todo__button" type="submit" [disabled]="!newTodoText().trim()">
+      Add
+    </button>
+  </form>
+
+  @if (hasTodos()) {
+    <section class="toolbar">
+      <label class="toggle-all">
+        <input
+          type="checkbox"
+          [checked]="activeCount() === 0"
+          (change)="toggleAll(activeCount() !== 0)"
+        />
+        Mark all as complete
+      </label>
+
+      <div class="filters">
+        <button
+          type="button"
+          class="filters__button"
+          [class.filters__button--active]="filter() === 'all'"
+          (click)="setFilter('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="filters__button"
+          [class.filters__button--active]="filter() === 'active'"
+          (click)="setFilter('active')"
+        >
+          Active
+        </button>
+        <button
+          type="button"
+          class="filters__button"
+          [class.filters__button--active]="filter() === 'completed'"
+          (click)="setFilter('completed')"
+        >
+          Completed
+        </button>
+      </div>
+    </section>
+
+    <ul class="todo-list">
+      @for (todo of filteredTodos(); track trackById($index, todo)) {
+        <li class="todo-item" [class.todo-item--completed]="todo.completed">
+          @if (editingId() === todo.id) {
+            <input
+              class="todo-item__edit"
+              type="text"
+              [(ngModel)]="editingText"
+              [ngModelOptions]="{ standalone: true }"
+              (keyup.enter)="saveEdit(todo.id)"
+              (keyup.escape)="cancelEdit()"
+              (blur)="saveEdit(todo.id)"
+              #editInput
+            />
+          } @else {
+            <label class="todo-item__label">
+              <input
+                type="checkbox"
+                [checked]="todo.completed"
+                (change)="toggleTodo(todo.id)"
+              />
+              <span class="todo-item__text" (dblclick)="startEditing(todo)">{{ todo.text }}</span>
+            </label>
+            <div class="todo-item__actions">
+              <button
+                type="button"
+                class="todo-item__edit-button"
+                title="Edit"
+                (click)="editByPrompt(todo)"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                class="todo-item__delete"
+                title="Delete"
+                (click)="removeTodo(todo.id)"
+              >
+                &times;
+              </button>
+            </div>
+          }
+        </li>
+      }
+    </ul>
+
+    <footer class="footer">
+      <span class="footer__count">
+        {{ activeCount() }} {{ activeCount() === 1 ? 'item' : 'items' }} left
+      </span>
+      <span class="footer__count footer__count--completed">
+        {{ completedCount() }} completed
+      </span>
+      <button
+        type="button"
+        class="footer__clear"
+        [disabled]="completedCount() === 0"
+        (click)="clearCompleted()"
+      >
+        Clear completed
+      </button>
+    </footer>
+  } @else {
+    <p class="empty-state">No todos yet. Add one above to get started.</p>
+  }
+</main>
