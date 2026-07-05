@@ -243,6 +243,64 @@ describe('App', () => {
     );
   });
 
+  it('should hide description/category behind a collapsed "Add details" control by default', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(app.detailsExpanded()).toBe(false);
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('#newTodoDescription')).toBeNull();
+    expect(compiled.querySelector('#newTodoCategory')).toBeNull();
+
+    const toggle = compiled.querySelector('.add-todo__details-toggle') as HTMLButtonElement;
+    expect(toggle.textContent).toContain('Add details');
+    toggle.click();
+    fixture.detectChanges();
+
+    expect(app.detailsExpanded()).toBe(true);
+    expect(compiled.querySelector('#newTodoDescription')).not.toBeNull();
+    expect(compiled.querySelector('#newTodoCategory')).not.toBeNull();
+    expect(toggle.textContent).toContain('Hide details');
+  });
+
+  it('should not discard description/category when collapsing the details panel', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    app.newTodoDescription.set('Bring snacks');
+    app.newTodoCategory.set('Errands');
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    fixture.detectChanges();
+
+    expect(app.newTodoDescription()).toBe('Bring snacks');
+    expect(app.newTodoCategory()).toBe('Errands');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const summary = compiled.querySelector('.add-todo__details-summary');
+    expect(summary?.textContent).toContain('Errands');
+    expect(summary?.textContent).toContain('Bring snacks');
+  });
+
+  it('should reset the details panel to collapsed after a successful add', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    app.newTodoText.set('Task with details');
+    app.newTodoDescription.set('Some detail');
+    app.addTodo();
+    fixture.detectChanges();
+
+    expect(app.detailsExpanded()).toBe(false);
+    expect(app.newTodoDescription()).toBe('');
+  });
+
   it('should load legacy todos missing description and category with sensible defaults', () => {
     window.localStorage.setItem(
       'angular-todo.todos',

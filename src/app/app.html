@@ -27,28 +27,63 @@
       />
       <button class="add-todo__button" type="submit" [disabled]="!newTodoText().trim()">Add</button>
     </div>
-    <div class="add-todo__row add-todo__row--details">
-      <label class="visually-hidden" for="newTodoDescription">Description (optional)</label>
-      <textarea
-        id="newTodoDescription"
-        class="add-todo__description"
-        name="newTodoDescription"
-        placeholder="Add a description (optional)"
-        rows="2"
-        [(ngModel)]="newTodoDescription"
-      ></textarea>
-      <label class="visually-hidden" for="newTodoCategory">Category</label>
-      <select
-        id="newTodoCategory"
-        class="add-todo__category"
-        name="newTodoCategory"
-        [(ngModel)]="newTodoCategory"
+    <div class="add-todo__row add-todo__row--toggle">
+      <button
+        type="button"
+        class="add-todo__details-toggle"
+        [attr.aria-expanded]="detailsExpanded()"
+        (click)="toggleDetails()"
       >
-        @for (category of categories; track category) {
-          <option [value]="category">{{ category }}</option>
-        }
-      </select>
+        <svg
+          class="add-todo__details-icon"
+          [class.add-todo__details-icon--expanded]="detailsExpanded()"
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+        >
+          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        {{ detailsExpanded() ? 'Hide details' : 'Add details' }}
+      </button>
+      @if (!detailsExpanded() && hasDetailsSummary()) {
+        <span class="add-todo__details-summary">
+          @if (newTodoCategory() !== defaultCategory) {
+            <span class="todo-item__category">{{ newTodoCategory() }}</span>
+          }
+          @if (newTodoDescription().trim()) {
+            <span class="add-todo__details-summary-text">{{ newTodoDescription() }}</span>
+          }
+        </span>
+      }
     </div>
+    @if (detailsExpanded()) {
+      <div class="add-todo__row add-todo__row--details">
+        <label class="visually-hidden" for="newTodoDescription">Description (optional)</label>
+        <textarea
+          id="newTodoDescription"
+          class="add-todo__description"
+          name="newTodoDescription"
+          placeholder="Add a description (optional)"
+          rows="2"
+          [(ngModel)]="newTodoDescription"
+        ></textarea>
+        <label class="visually-hidden" for="newTodoCategory">Category</label>
+        <select
+          id="newTodoCategory"
+          class="add-todo__category"
+          name="newTodoCategory"
+          [(ngModel)]="newTodoCategory"
+        >
+          @for (category of categories; track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+      </div>
+    }
   </form>
 
   @if (hasTodos()) {

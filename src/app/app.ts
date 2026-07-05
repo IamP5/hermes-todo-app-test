@@ -16,10 +16,12 @@ export class App {
   private readonly themeService = inject(ThemeService);
 
   readonly categories = CATEGORIES;
+  readonly defaultCategory = DEFAULT_CATEGORY;
 
   readonly newTodoText = signal('');
   readonly newTodoDescription = signal('');
   readonly newTodoCategory = signal(DEFAULT_CATEGORY);
+  readonly detailsExpanded = signal(false);
 
   readonly filter = signal<TodoFilter>('all');
   readonly categoryFilter = signal<string>('all');
@@ -48,6 +50,10 @@ export class App {
 
   readonly hasTodos = computed(() => this.todos().length > 0);
 
+  readonly hasDetailsSummary = computed(
+    () => this.newTodoDescription().trim().length > 0 || this.newTodoCategory() !== DEFAULT_CATEGORY,
+  );
+
   addTodo(): void {
     this.todoService.add(this.newTodoText(), {
       description: this.newTodoDescription(),
@@ -56,6 +62,11 @@ export class App {
     this.newTodoText.set('');
     this.newTodoDescription.set('');
     this.newTodoCategory.set(DEFAULT_CATEGORY);
+    this.detailsExpanded.set(false);
+  }
+
+  toggleDetails(): void {
+    this.detailsExpanded.set(!this.detailsExpanded());
   }
 
   toggleTodo(id: string): void {

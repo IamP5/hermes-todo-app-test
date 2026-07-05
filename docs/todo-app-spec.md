@@ -25,12 +25,19 @@ Default categories: `Personal`, `Work`, `Errands`, `Ideas`.
 
 ## Adding a todo
 
-- The add form has a title input (required), an optional description textarea, and a
-  category selector defaulting to `Personal`.
+- The add form has a title input (required); the optional description textarea and
+  category selector are collapsed by default behind a labeled "Add details" control
+  (icon + text, not icon-only) so a one-line add is the fast path on small screens.
+- Activating "Add details" reveals the description and category fields inline; the
+  control becomes "Hide details" and can be used to collapse them again.
+- Collapsing the details panel never discards entered data: if a description was
+  typed or a non-default category chosen, that state folds into a one-line summary
+  (category chip + description snippet) shown next to the collapsed toggle until the
+  panel is reopened or the todo is added.
 - Submitting with a blank (or whitespace-only) title is a no-op — the submit button
   is disabled in that state.
-- After a successful add, the form resets to empty title/description and the default
-  category.
+- After a successful add, the form resets to empty title/description, the default
+  category, and the details panel collapses back to its default (hidden) state.
 
 ## Editing a todo
 
