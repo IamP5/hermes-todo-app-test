@@ -225,6 +225,72 @@ describe('App', () => {
     expect(app.filteredTodos().length).toBe(2);
   });
 
+  it('should render status and category filters as a single unified chip row', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Any todo');
+    app.addTodo();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const filterRoot = compiled.querySelector('.filters');
+    expect(filterRoot).not.toBeNull();
+    expect(compiled.querySelector('.category-filter__select')).toBeNull();
+    const buttons = Array.from(filterRoot!.querySelectorAll('.filters__button')).map(
+      (button) => button.textContent?.trim(),
+    );
+    expect(buttons).toEqual([
+      'All',
+      'Active',
+      'Completed',
+      'All categories',
+      'Personal',
+      'Work',
+      'Errands',
+      'Ideas',
+    ]);
+  });
+
+  it('should combine status and category chip selection as AND and support clearing back to All', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.newTodoText.set('Work active');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    app.newTodoText.set('Work completed');
+    app.newTodoCategory.set('Work');
+    app.addTodo();
+    fixture.detectChanges();
+    app.toggleTodo(app.todos()[1].id);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const findButton = (text: string) =>
+      Array.from(compiled.querySelectorAll('.filters__button')).find(
+        (button) => button.textContent?.trim() === text,
+      ) as HTMLButtonElement;
+
+    findButton('Active').click();
+    findButton('Work').click();
+    fixture.detectChanges();
+
+    expect(app.filter()).toBe('active');
+    expect(app.categoryFilter()).toBe('Work');
+    expect(app.filteredTodos().length).toBe(1);
+    expect(app.filteredTodos()[0].text).toBe('Work active');
+    expect(findButton('Active').className).toContain('filters__button--active');
+    expect(findButton('Work').className).toContain('filters__button--active');
+
+    findButton('All categories').click();
+    fixture.detectChanges();
+    expect(app.categoryFilter()).toBe('all');
+    expect(app.filteredTodos().length).toBe(1);
+  });
+
   it('should toggle dark mode and persist the preference', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;

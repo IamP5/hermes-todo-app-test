@@ -51,9 +51,13 @@ Default categories: `Personal`, `Work`, `Errands`, `Ideas`.
 ## Categories & filtering
 
 - Each todo displays a category chip alongside its title.
-- In addition to the status filter (All / Active / Completed), a category filter
-  lets the user narrow the list to one category or show all categories.
-- Both filters apply simultaneously (AND, not OR).
+- Status (All / Active / Completed) and category (All categories / Personal / Work /
+  Errands / Ideas) filters render as one unified row of ghost-button chips — the same
+  visual pattern for both — rather than a segmented control paired with a native
+  `<select>`. The row scrolls horizontally on narrow viewports instead of wrapping
+  into extra toolbar rows.
+- Both filters apply simultaneously (AND, not OR): selecting a status chip and a
+  category chip narrows the list to todos matching both.
 
 ## Descriptions
 

@@ -97,47 +97,57 @@
         Mark all as complete
       </label>
 
-      <div class="filters">
-        <button
-          type="button"
-          class="filters__button"
-          [class.filters__button--active]="filter() === 'all'"
-          (click)="setFilter('all')"
-        >
-          All
-        </button>
-        <button
-          type="button"
-          class="filters__button"
-          [class.filters__button--active]="filter() === 'active'"
-          (click)="setFilter('active')"
-        >
-          Active
-        </button>
-        <button
-          type="button"
-          class="filters__button"
-          [class.filters__button--active]="filter() === 'completed'"
-          (click)="setFilter('completed')"
-        >
-          Completed
-        </button>
-      </div>
+      <div class="filters" role="group" aria-label="Filter todos">
+        <div class="filters__group" role="group" aria-label="Filter by status">
+          <button
+            type="button"
+            class="filters__button"
+            [class.filters__button--active]="filter() === 'all'"
+            (click)="setFilter('all')"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            class="filters__button"
+            [class.filters__button--active]="filter() === 'active'"
+            (click)="setFilter('active')"
+          >
+            Active
+          </button>
+          <button
+            type="button"
+            class="filters__button"
+            [class.filters__button--active]="filter() === 'completed'"
+            (click)="setFilter('completed')"
+          >
+            Completed
+          </button>
+        </div>
 
-      <label class="category-filter">
-        <span class="visually-hidden">Filter by category</span>
-        <select
-          class="category-filter__select"
-          [ngModel]="categoryFilter()"
-          [ngModelOptions]="{ standalone: true }"
-          (ngModelChange)="setCategoryFilter($event)"
-        >
-          <option value="all">All categories</option>
+        <span class="filters__divider" aria-hidden="true"></span>
+
+        <div class="filters__group" role="group" aria-label="Filter by category">
+          <button
+            type="button"
+            class="filters__button"
+            [class.filters__button--active]="categoryFilter() === 'all'"
+            (click)="setCategoryFilter('all')"
+          >
+            All categories
+          </button>
           @for (category of categories; track category) {
-            <option [value]="category">{{ category }}</option>
+            <button
+              type="button"
+              class="filters__button"
+              [class.filters__button--active]="categoryFilter() === category"
+              (click)="setCategoryFilter(category)"
+            >
+              {{ category }}
+            </button>
           }
-        </select>
-      </label>
+        </div>
+      </div>
     </section>
 
     <ul class="todo-list">
