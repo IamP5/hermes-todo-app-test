@@ -1,7 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Todo, TodoFilter } from './models/todo.model';
+import { CATEGORIES, DEFAULT_CATEGORY, Todo, TodoFilter } from './models/todo.model';
 import { TodoService } from './services/todo.service';
+import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -12,33 +13,49 @@ import { TodoService } from './services/todo.service';
 })
 export class App {
   private readonly todoService = inject(TodoService);
+  private readonly themeService = inject(ThemeService);
+
+  readonly categories = CATEGORIES;
 
   readonly newTodoText = signal('');
+  readonly newTodoDescription = signal('');
+  readonly newTodoCategory = signal(DEFAULT_CATEGORY);
+
   readonly filter = signal<TodoFilter>('all');
+  readonly categoryFilter = signal<string>('all');
+
   readonly editingId = signal<string | null>(null);
   readonly editingText = signal('');
+  readonly editingDescription = signal('');
+  readonly editingCategory = signal(DEFAULT_CATEGORY);
 
   readonly todos = this.todoService.todos;
   readonly activeCount = this.todoService.activeCount;
   readonly completedCount = this.todoService.completedCount;
 
+  readonly isDarkTheme = this.themeService.isDark;
+
   readonly filteredTodos = computed(() => {
-    const filter = this.filter();
-    const todos = this.todos();
-    if (filter === 'active') {
-      return todos.filter((todo) => !todo.completed);
-    }
-    if (filter === 'completed') {
-      return todos.filter((todo) => todo.completed);
-    }
-    return todos;
+    const status = this.filter();
+    const category = this.categoryFilter();
+    return this.todos().filter((todo) => {
+      const statusMatches =
+        status === 'all' || (status === 'active' ? !todo.completed : todo.completed);
+      const categoryMatches = category === 'all' || todo.category === category;
+      return statusMatches && categoryMatches;
+    });
   });
 
   readonly hasTodos = computed(() => this.todos().length > 0);
 
   addTodo(): void {
-    this.todoService.add(this.newTodoText());
+    this.todoService.add(this.newTodoText(), {
+      description: this.newTodoDescription(),
+      category: this.newTodoCategory(),
+    });
     this.newTodoText.set('');
+    this.newTodoDescription.set('');
+    this.newTodoCategory.set(DEFAULT_CATEGORY);
   }
 
   toggleTodo(id: string): void {
@@ -53,6 +70,10 @@ export class App {
     this.filter.set(filter);
   }
 
+  setCategoryFilter(category: string): void {
+    this.categoryFilter.set(category);
+  }
+
   clearCompleted(): void {
     this.todoService.clearCompleted();
   }
@@ -61,29 +82,34 @@ export class App {
     this.todoService.toggleAll(completed);
   }
 
+  toggleTheme(): void {
+    this.themeService.toggle();
+  }
+
   startEditing(todo: Todo): void {
     this.editingId.set(todo.id);
     this.editingText.set(todo.text);
+    this.editingDescription.set(todo.description);
+    this.editingCategory.set(todo.category);
   }
 
   saveEdit(id: string): void {
     if (this.editingId() !== id) {
       return;
     }
-    this.todoService.edit(id, this.editingText());
+    this.todoService.edit(id, {
+      text: this.editingText(),
+      description: this.editingDescription(),
+      category: this.editingCategory(),
+    });
     this.cancelEdit();
   }
 
   cancelEdit(): void {
     this.editingId.set(null);
     this.editingText.set('');
-  }
-
-  editByPrompt(todo: Todo): void {
-    const result = window.prompt('Edit todo', todo.text);
-    if (result !== null) {
-      this.todoService.edit(todo.id, result);
-    }
+    this.editingDescription.set('');
+    this.editingCategory.set(DEFAULT_CATEGORY);
   }
 
   trackById(_index: number, todo: Todo): string {
