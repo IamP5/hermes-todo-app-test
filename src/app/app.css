@@ -123,8 +123,7 @@ select:focus-visible {
 }
 
 .add-todo__input,
-.add-todo__description,
-.add-todo__category {
+.add-todo__description {
   min-height: 44px;
   padding: 0.65rem 0.85rem;
   font-size: 1rem;
@@ -146,11 +145,11 @@ select:focus-visible {
 
 .add-todo__description {
   resize: vertical;
+  width: 100%;
 }
 
 .add-todo__input:focus-visible,
-.add-todo__description:focus-visible,
-.add-todo__category:focus-visible {
+.add-todo__description:focus-visible {
   border-color: var(--color-primary);
 }
 
@@ -248,6 +247,82 @@ select:focus-visible {
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+}
+
+.add-todo__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+}
+
+.add-todo__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+fieldset.add-todo__field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.add-todo__field-label {
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.add-todo__field-optional {
+  font-weight: 400;
+  color: var(--color-text-subtle);
+}
+
+.add-todo__category-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.add-todo__category-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.1rem;
+  cursor: pointer;
+}
+
+.add-todo__category-option input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.add-todo__category-option .add-todo__category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  border: 2px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.add-todo__category-option input:checked + .add-todo__category-chip {
+  border-color: currentColor;
+}
+
+.add-todo__category-option input:focus-visible + .add-todo__category-chip {
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
 }
 
 .toolbar {
@@ -700,17 +775,18 @@ select:focus-visible {
   }
 
   .add-todo__row,
-  .add-todo__row--details {
+  .add-todo__details {
     flex-direction: row;
   }
 
-  .add-todo__description {
+  .add-todo__field--description {
     flex: 1;
+    min-width: 0;
   }
 
-  .add-todo__category {
+  .add-todo__field--category {
     flex: 0 0 auto;
-    width: 160px;
+    width: 220px;
   }
 
   .toolbar {
