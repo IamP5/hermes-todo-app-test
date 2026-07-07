@@ -88,6 +88,7 @@
           type="button"
           class="add-todo__details-toggle"
           [attr.aria-expanded]="detailsExpanded()"
+          aria-controls="addTodoDetailsPanel"
           (click)="toggleDetails()"
         >
           <svg
@@ -103,10 +104,24 @@
           >
             <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-          {{ detailsExpanded() ? 'Hide details' : 'Add details' }}
+          {{
+            detailsExpanded() ? 'Hide details' : hasDetailsSummary() ? 'Edit details' : 'Add details'
+          }}
         </button>
         @if (!detailsExpanded() && hasDetailsSummary()) {
           <span class="add-todo__details-summary">
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <path d="M5 12.5l4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="visually-hidden">Details saved:</span>
             @if (newTodoCategory() !== defaultCategory) {
               <span [class]="categoryChipClass(newTodoCategory())">{{ newTodoCategory() }}</span>
             }
@@ -117,27 +132,56 @@
         }
       </div>
       @if (detailsExpanded()) {
-        <div class="add-todo__row add-todo__row--details">
-          <label class="visually-hidden" for="newTodoDescription">Description (optional)</label>
-          <textarea
-            id="newTodoDescription"
-            class="add-todo__description"
-            name="newTodoDescription"
-            placeholder="Add a description (optional)"
-            rows="2"
-            [(ngModel)]="newTodoDescription"
-          ></textarea>
-          <label class="visually-hidden" for="newTodoCategory">Category</label>
-          <select
-            id="newTodoCategory"
-            class="add-todo__category"
-            name="newTodoCategory"
-            [(ngModel)]="newTodoCategory"
-          >
-            @for (category of categories; track category) {
-              <option [value]="category">{{ category }}</option>
-            }
-          </select>
+        <div
+          class="add-todo__details"
+          id="addTodoDetailsPanel"
+          animate.enter="todo-enter"
+          animate.leave="todo-leave"
+        >
+          <div class="add-todo__field add-todo__field--description">
+            <label class="add-todo__field-label" for="newTodoDescription">
+              Description <span class="add-todo__field-optional">(optional)</span>
+            </label>
+            <textarea
+              id="newTodoDescription"
+              class="add-todo__description"
+              name="newTodoDescription"
+              placeholder="Add any extra detail…"
+              rows="2"
+              [(ngModel)]="newTodoDescription"
+            ></textarea>
+          </div>
+          <fieldset class="add-todo__field add-todo__field--category">
+            <legend class="add-todo__field-label">Category</legend>
+            <div class="add-todo__category-options">
+              @for (category of categories; track category) {
+                <label class="add-todo__category-option">
+                  <input
+                    type="radio"
+                    name="newTodoCategory"
+                    [checked]="newTodoCategory() === category"
+                    (change)="newTodoCategory.set(category)"
+                  />
+                  <span [class]="categoryChipClass(category) + ' add-todo__category-chip'">
+                    @if (newTodoCategory() === category) {
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        aria-hidden="true"
+                      >
+                        <path d="M5 12l4 4L19 6" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    }
+                    {{ category }}
+                  </span>
+                </label>
+              }
+            </div>
+          </fieldset>
         </div>
       }
     </div>

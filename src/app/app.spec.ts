@@ -317,7 +317,7 @@ describe('App', () => {
     expect(app.detailsExpanded()).toBe(false);
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('#newTodoDescription')).toBeNull();
-    expect(compiled.querySelector('#newTodoCategory')).toBeNull();
+    expect(compiled.querySelector('.add-todo__category-options')).toBeNull();
 
     const toggle = compiled.querySelector('.add-todo__details-toggle') as HTMLButtonElement;
     expect(toggle.textContent).toContain('Add details');
@@ -326,8 +326,47 @@ describe('App', () => {
 
     expect(app.detailsExpanded()).toBe(true);
     expect(compiled.querySelector('#newTodoDescription')).not.toBeNull();
-    expect(compiled.querySelector('#newTodoCategory')).not.toBeNull();
+    const categoryOptions = compiled.querySelectorAll('input[name="newTodoCategory"]');
+    expect(categoryOptions.length).toBe(4);
     expect(toggle.textContent).toContain('Hide details');
+  });
+
+  it('should select a category by clicking its chip in the details panel', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const workLabel = Array.from(
+      compiled.querySelectorAll<HTMLLabelElement>('.add-todo__category-option'),
+    ).find((label) => label.textContent?.includes('Work')) as HTMLLabelElement;
+    expect(workLabel).toBeTruthy();
+    const workInput = workLabel.querySelector('input') as HTMLInputElement;
+
+    workInput.click();
+    fixture.detectChanges();
+
+    expect(app.newTodoCategory()).toBe('Work');
+    const checkedChip = workInput.nextElementSibling as HTMLElement;
+    expect(checkedChip.className).toContain('todo-item__category--work');
+  });
+
+  it('should relabel the details toggle to "Edit details" once details are saved and collapsed', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    fixture.detectChanges();
+
+    app.toggleDetails();
+    app.newTodoDescription.set('Bring snacks');
+    app.toggleDetails();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const toggle = compiled.querySelector('.add-todo__details-toggle') as HTMLButtonElement;
+    expect(toggle.textContent).toContain('Edit details');
   });
 
   it('should not discard description/category when collapsing the details panel', () => {
